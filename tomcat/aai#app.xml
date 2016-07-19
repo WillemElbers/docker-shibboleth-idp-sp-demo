@@ -1,4 +1,4 @@
-<Context path="/app" docBase="/opt/shibboleth-idp/webapp"
+<Context path="/aai/app" docBase="/opt/app"
 	 override="true"
          privileged="true"
          antiResourceLocking="false"

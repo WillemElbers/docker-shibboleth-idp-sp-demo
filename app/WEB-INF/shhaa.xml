@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ROOT>
+    <shhaa>
+
+        <authentication>
+            <shibheader>
+                <username>eduPersonPrincipalName</username>
+            </shibheader>
+            <fallback>
+                <username>anonymous</username>
+            </fallback>
+            <sso action="lI">
+                https://localhost/Shibboleth.sso/Login
+            </sso>
+            <slo action="lO">
+                https://localhost/Shibboleth.sso/Logout
+            </slo>
+        </authentication>
+
+        <authorization>
+            <location  target="/protected/*" />
+        </authorization>
+
+    </shhaa>
+</ROOT>

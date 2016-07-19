@@ -1,0 +1,13 @@
+1. unpack the .war into the proper directory on the server where you want to run the application.
+    E.g. /lat/webapps/shibboleth/aaid/{version}
+2. make a symbolic link from /lat/webapps/shibboleth/aaid/{version} to /lat/webapps/shibboleth/aaid/current
+3. make sure the context fragment exists in the proper tomcat
+    E.g. ds#aaid.xml on lux17:
+        <?xml version='1.0' encoding='utf-8'?>
+        <Context path="/ds/aaid" docBase="/lat/webapps/shibboleth/aaid/current/" debug="0" reloadable="true" crossContext="true">
+        </Context>
+4. update the web.xml file
+
+    make sure that the lana2/shibboleth filters are properly configured.
+    no other context parameters are required.
+   

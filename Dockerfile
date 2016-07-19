@@ -32,16 +32,10 @@ RUN mkdir -p /etc/shibboleth/certs \
  && chmod 0700 /etc/shibboleth/certs/shib.key
 
 ADD apache/default.conf /etc/apache2/sites-available/default.conf
-ADD apache/idp.ssl.conf /etc/apache2/sites-available/idp.ssl.conf
 RUN a2dissite 000-default \
- && a2ensite default \
- && a2ensite idp.ssl.conf
+ && a2ensite default
 
 RUN mkdir -p mkdir -p /var/run/shibboleth
-# && sed -i 's/entityID="https:\/\/sp.example.org\/shibboleth"/entityID="https:\/\/test.clarin.eu\/sp\/shibboleth"/g' /etc/shibboleth/shibboleth2.xml \
-# && sed -i 's/handlerSSL="false"/handlerSSL="true"/g' /etc/shibboleth/shibboleth2.xml \
-# && sed -i 's/<CredentialResolver type="File" key="sp-key.pem" certificate="sp-cert.pem"\/>/<CredentialResolver type="File" key="\/etc\/shibboleth\/certs\/shib.key" certificate="\/etc\/shibboleth\/certs\/shib.crt"\/>/g' /etc/shibboleth/shibboleth2.xml
-
 COPY sp/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
 COPY sp/attribute-map.xml /etc/shibboleth/attribute-map.xml
 
@@ -80,12 +74,12 @@ RUN mkdir -p /var/lib/tomcat8/temp \
 COPY tomcat/server.xml /etc/tomcat8/server.xml
 COPY tomcat/tomcat-users.xml /etc/tomcat8/tomcat-users.xml
 COPY tomcat/idp.xml /etc/tomcat8/Catalina/localhost/idp.xml
-COPY tomcat/app.xml /etc/tomcat8/Catalina/localhost/app.xml
+COPY tomcat/aai#app.xml /etc/tomcat8/Catalina/localhost/aai#app.xml
 
 #
 # Apache
 #
-COPY apache/index.html /var/www/index.html
+#COPY apache/index.html /var/www/index.html
 COPY apache/workers.properties etc/libapache2-mod-jk/workers.properties
 
 #
@@ -102,7 +96,7 @@ RUN /etc/init.d/shibd start \
  && wget --no-check-certificate -O /data/metadata/sp-metadata.xml https://localhost/Shibboleth.sso/Metadata \
  && cp /opt/shibboleth-idp/metadata/idp-metadata.xml /data/metadata/idp-metadata.xml
 
-#VOLUME ["/var/log/"]
+COPY app /opt/app
 
 EXPOSE 80 443 8009 8080
 

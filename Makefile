@@ -1,3 +1,7 @@
 
+IMAGE_NAME=shibboleth/sp-idp-demo
+IMAGE_VERSION=1.0.0
+
 build:
-	@docker build -t shibboleth/sp-idp-demo:1.0.0 .
+	@echo "Building docker image: ${IMAGE_NAME}:${IMAGE_VERSION}"
+	@docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} .

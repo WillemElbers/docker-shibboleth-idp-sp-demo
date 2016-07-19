@@ -1,0 +1,6 @@
+- Version 1.1
+    provide information logged in status (remoteuser null) and provide
+    a login link if not logged in
+            
+- Version 1.0
+    initial version. display http headers
