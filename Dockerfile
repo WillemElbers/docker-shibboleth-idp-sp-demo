@@ -38,6 +38,7 @@ RUN a2dissite 000-default \
 RUN mkdir -p mkdir -p /var/run/shibboleth
 COPY sp/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
 COPY sp/attribute-map.xml /etc/shibboleth/attribute-map.xml
+COPY sp/attribute-policy.xml /etc/shibboleth/attribute-policy.xml
 
 #
 # IDP Setup
@@ -57,8 +58,10 @@ RUN cd /root/shibboleth-identity-provider-3.1.2/bin \
 COPY idp/metadata-providers.xml /opt/shibboleth-idp/conf/metadata-providers.xml
 COPY idp/idp.properties /opt/shibboleth-idp/conf/idp.properties
 COPY idp/attribute-resolver.xml /opt/shibboleth-idp/conf/attribute-resolver.xml
+COPY idp/attribute-filter.xml /opt/shibboleth-idp/conf/attribute-filter.xml
+COPY idp/relying-party.xml /opt/shibboleth-idp/conf/relying-party.xml
 COPY idp/web.xml /opt/shibboleth-idp/webapp/WEB-INF/web.xml
-
+COPY idp/logback.xml /opt/shibboleth-idp/conf/logback.xml
 
 #
 # Tomcat

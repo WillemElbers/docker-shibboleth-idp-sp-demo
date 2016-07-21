@@ -4,7 +4,7 @@
 
         <authentication>
             <shibheader>
-                <username>eduPersonPrincipalName</username>
+                <username>eppn</username>
             </shibheader>
             <fallback>
                 <username>anonymous</username>
