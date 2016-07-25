@@ -1,5 +1,0 @@
-<Context path="/aai/app" docBase="/opt/app"
-	 override="true"
-         privileged="true"
-         antiResourceLocking="false"
-         swallowOutput="true" />

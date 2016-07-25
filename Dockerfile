@@ -6,14 +6,17 @@ ENV CATALINA_HOME="/usr/share/tomcat8"
 ENV CATALINA_BASE="/var/lib/tomcat8"
 ENV JAVA_OPTS="-Xmx1024m"
 
-RUN apt-get update -y \
- && apt-get install -y openssl apache2 libapache2-mod-shib2 libapache2-mod-jk tomcat8 supervisor wget curl vim \
+RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list \
+ && apt-get update -y \
+ && apt-get install -y openjdk-8-jdk openssl apache2 libapache2-mod-shib2 libapache2-mod-jk tomcat8 tomcat8-admin supervisor wget curl vim \
  && a2enmod ssl \
  && a2enmod shib2 \
  && a2enmod jk \
  && a2enmod proxy \
  && a2enmod proxy_http \
- && a2enmod headers
+ && a2enmod proxy_ajp \
+ && a2enmod headers \
+ && a2enmod rewrite
 
 #
 # SP setup
@@ -77,18 +80,20 @@ RUN mkdir -p /var/lib/tomcat8/temp \
 COPY tomcat/server.xml /etc/tomcat8/server.xml
 COPY tomcat/tomcat-users.xml /etc/tomcat8/tomcat-users.xml
 COPY tomcat/idp.xml /etc/tomcat8/Catalina/localhost/idp.xml
-COPY tomcat/aai#app.xml /etc/tomcat8/Catalina/localhost/aai#app.xml
+#COPY tomcat/app.xml /etc/tomcat8/Catalina/localhost/app.xml
+#COPY tomcat/aagregator.xml /etc/tomcat8/Catalina/localhost/aagregator.xml
 
 #
 # Apache
 #
-#COPY apache/index.html /var/www/index.html
-COPY apache/workers.properties etc/libapache2-mod-jk/workers.properties
+COPY apache/workers.properties /etc/libapache2-mod-jk/workers.properties
+COPY apache/jk.conf /etc/apache2/mods-available/jk.conf
 
 #
 # Supervisor
 #
 COPY supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN mkdir -p /var/log/supervisord
 
 #
 # Exchange IDP and SP metadata
@@ -99,7 +104,11 @@ RUN /etc/init.d/shibd start \
  && wget --no-check-certificate -O /data/metadata/sp-metadata.xml https://localhost/Shibboleth.sso/Metadata \
  && cp /opt/shibboleth-idp/metadata/idp-metadata.xml /data/metadata/idp-metadata.xml
 
-COPY app /opt/app
+#COPY app /opt/app
+COPY aai-debugger-1.1.war ${CATALINA_BASE}/webapps/app.war
+COPY AAGregator-1.0.war ${CATALINA_BASE}/webapps/aagregator.war
+
+COPY sp-aagregator-golang_linux_amd64 /opt/sp-aagregator-golang
 
 EXPOSE 80 443 8009 8080
 
