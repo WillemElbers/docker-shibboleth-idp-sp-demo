@@ -8,35 +8,29 @@ ENV JAVA_OPTS="-Xmx1024m"
 
 RUN echo "deb http://http.debian.net/debian jessie-backports main" >> /etc/apt/sources.list \
  && apt-get update -y \
- && apt-get install -y openjdk-8-jdk openssl apache2 libapache2-mod-shib2 libapache2-mod-jk tomcat8 tomcat8-admin supervisor wget curl vim \
+ && apt-get install -y openjdk-8-jdk openssl apache2 libapache2-mod-shib2 tomcat8 tomcat8-admin supervisor wget curl vim \
  && a2enmod ssl \
  && a2enmod shib2 \
- && a2enmod jk \
  && a2enmod proxy \
  && a2enmod proxy_http \
  && a2enmod proxy_ajp \
  && a2enmod headers \
- && a2enmod rewrite
+ && a2enmod rewrite \
+ && a2enmod cgi
+
+RUN apt-get update -y \
+ && apt-get install -y python-dev python-pip libxml2-dev libxslt1-dev zlib1g-dev \
+ && pip install lxml requests
 
 #
 # SP setup
 #
-
-COPY openssl/apache.cert.conf /opt/apache.cert.conf
-RUN mkdir -p /etc/apache2/certs \
- && openssl req -config /opt/apache.cert.conf -new -x509 -days 365 -keyout /etc/apache2/certs/apache.key -out /etc/apache2/certs/apache.crt \
- && chmod 0700 /etc/apache2/certs/apache.crt \
- && chmod 0700 /etc/apache2/certs/apache.key
 
 COPY openssl/shibboleth-sp.cert.conf /opt/shibboleth-sp.cert.conf
 RUN mkdir -p /etc/shibboleth/certs \
  && openssl req -config /opt/shibboleth-sp.cert.conf -new -x509 -days 365 -keyout /etc/shibboleth/certs/shib.key -out /etc/shibboleth/certs/shib.crt \
  && chmod 0700 /etc/shibboleth/certs/shib.crt \
  && chmod 0700 /etc/shibboleth/certs/shib.key
-
-ADD apache/default.conf /etc/apache2/sites-available/default.conf
-RUN a2dissite 000-default \
- && a2ensite default
 
 RUN mkdir -p mkdir -p /var/run/shibboleth
 COPY sp/shibboleth2.xml /etc/shibboleth/shibboleth2.xml
@@ -80,14 +74,18 @@ RUN mkdir -p /var/lib/tomcat8/temp \
 COPY tomcat/server.xml /etc/tomcat8/server.xml
 COPY tomcat/tomcat-users.xml /etc/tomcat8/tomcat-users.xml
 COPY tomcat/idp.xml /etc/tomcat8/Catalina/localhost/idp.xml
-#COPY tomcat/app.xml /etc/tomcat8/Catalina/localhost/app.xml
-#COPY tomcat/aagregator.xml /etc/tomcat8/Catalina/localhost/aagregator.xml
 
 #
 # Apache
 #
-COPY apache/workers.properties /etc/libapache2-mod-jk/workers.properties
-COPY apache/jk.conf /etc/apache2/mods-available/jk.conf
+COPY openssl/apache.cert.conf /opt/apache.cert.conf
+COPY apache/default.conf /etc/apache2/sites-available/default.conf
+RUN mkdir -p /etc/apache2/certs \
+ && openssl req -config /opt/apache.cert.conf -new -x509 -days 365 -keyout /etc/apache2/certs/apache.key -out /etc/apache2/certs/apache.crt \
+ && chmod 0700 /etc/apache2/certs/apache.crt \
+ && chmod 0700 /etc/apache2/certs/apache.key \
+ && a2dissite 000-default \
+ && a2ensite default
 
 #
 # Supervisor
@@ -104,11 +102,23 @@ RUN /etc/init.d/shibd start \
  && wget --no-check-certificate -O /data/metadata/sp-metadata.xml https://localhost/Shibboleth.sso/Metadata \
  && cp /opt/shibboleth-idp/metadata/idp-metadata.xml /data/metadata/idp-metadata.xml
 
-#COPY app /opt/app
 COPY aai-debugger-1.1.war ${CATALINA_BASE}/webapps/app.war
 COPY AAGregator-1.0.war ${CATALINA_BASE}/webapps/aagregator.war
+COPY clarin-aai-debugger-1.1.war ${CATALINA_BASE}/webapps/debugger.war
 
 COPY sp-aagregator-golang_linux_amd64 /opt/sp-aagregator-golang
+
+COPY sp-aagregator-golang-cgi /usr/lib/cgi-bin/sp-aagregator-golang-cli.go
+COPY sp-aagregator-cgi-python.py /usr/lib/cgi-bin/sp-aagregator-python.py
+RUN chmod ugo+x /usr/lib/cgi-bin/sp-aagregator-golang-cli.go \
+ && chmod ugo+x /usr/lib/cgi-bin/sp-aagregator-python.py
+
+RUN mkdir -p /var/www/html/hook
+COPY sp-aagregator-golang-cgi /var/www/html/hook/sp-aagregator-golang-cli.go
+COPY sp-aagregator-cgi-python.py /var/www/html/hook/sp-aagregator-python.py
+RUN chmod ugo+x /var/www/html/hook/sp-aagregator-golang-cli.go \
+ && chmod ugo+x /var/www/html/hook/sp-aagregator-python.py
+
 
 EXPOSE 80 443 8009 8080
 
