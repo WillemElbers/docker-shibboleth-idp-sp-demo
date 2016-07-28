@@ -33,7 +33,7 @@
     <!-- The ApplicationDefaults element is where most of Shibboleth's SAML bits are defined. -->
     <ApplicationDefaults entityID="https://localhost/sp/shibboleth"
                          REMOTE_USER="eppn persistent-id targeted-id"
-                         sessionHook="/hook"
+                         sessionHook="/aa-statistics"
                          metadataAttributePrefix="AJP_" >
     <!--
     <ApplicationDefaults entityID="https://localhost/sp/shibboleth"
