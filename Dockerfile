@@ -103,16 +103,8 @@ RUN /etc/init.d/shibd start \
  && cp /opt/shibboleth-idp/metadata/idp-metadata.xml /data/metadata/idp-metadata.xml
 
 COPY aai-debugger-1.1.war ${CATALINA_BASE}/webapps/app.war
-COPY AAGregator-1.0.war ${CATALINA_BASE}/webapps/aagregator.war
 COPY clarin-aai-debugger-1.1.war ${CATALINA_BASE}/webapps/debugger.war
 
-#COPY sp-aagregator-golang_linux_amd64 /opt/sp-aagregator-golang
-
-#COPY sp-aagregator-cgi-python.py /usr/lib/cgi-bin/sp-aagregator-python.py
-#RUN chmod ugo+x /usr/lib/cgi-bin/sp-aagregator-golang-cli.go \
-# && chmod ugo+x /usr/lib/cgi-bin/sp-aagregator-python.py
-
-#RUN mkdir -p /var/www/html/hook
 COPY sp-aagregator-golang /var/www/html/aa-statistics/clarin-sp-aagregator-golang.go
 COPY sp-aagregator-cgi-python.py /var/www/html/aa-statistics/sp-aagregator-python.py
 RUN chmod ugo+x /var/www/html/aa-statistics/clarin-sp-aagregator-golang.go \
