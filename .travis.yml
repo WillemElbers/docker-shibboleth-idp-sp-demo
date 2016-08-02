@@ -1,0 +1,11 @@
+sudo: required
+
+services:
+  - docker
+
+install:
+  - docker build -t shibboleth/sp-idp-demo:1.0.0 .
+  - docker run -d -p 127.0.0.1:80:80 -p 127.0.0.1:443:443 --name shib-demo shibboleth/sp-idp-demo:1.0.0
+
+script:
+  - docker ps | grep shib-demo
