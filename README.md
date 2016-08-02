@@ -1,4 +1,6 @@
-## Building the image
+## Building the image 
+
+[![Build Status](https://travis-ci.org/WillemElbers/docker-shibboleth-idp-sp-demo.svg?branch=master)](https://travis-ci.org/WillemElbers/docker-shibboleth-idp-sp-demo)
 
 In order to build the docker image run the following command:
 
